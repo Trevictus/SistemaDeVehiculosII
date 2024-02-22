@@ -1,4 +1,5 @@
 class Vehiculo(
+    val nombre: String,
     val marca: String,
     val modelo:String,
     val capacidadCombustible: Float,
@@ -6,37 +7,47 @@ class Vehiculo(
     var kilometrosActuales: Float
 ) {
 
+
+    companion object{
+        const val KILOMETROSPORLITRO = 10f
+    }
+
     fun obtenerInformacion(): String{
         return "El vehiculo puede recorrer ${calcularAutonomia()} km."
     }
     fun calcularAutonomia(): Float{
-        val autonomia = combustibleActual*10
+        val autonomia = combustibleActual*KILOMETROSPORLITRO
         return autonomia
     }
     fun realizarViaje(distancia: Float): Float{
-        if (distancia > calcularAutonomia()){
-            return calcularAutonomia()
-        }
-        else if (distancia <= calcularAutonomia()){
-            return calcularAutonomia()- distancia
-        }
-    return distancia
+//        val distanciaRecorrible =
+//            if (distancia > calcularAutonomia()) {
+//                calcularAutonomia()
+//            } else {
+//                distancia
+//            }
+        val distanciaRecorrible = minOf(calcularAutonomia(), distancia)
+        ajustarKilometros(distanciaRecorrible)
+        ajustarCombustible(distanciaRecorrible)
+        return distancia - distanciaRecorrible
     }
-    fun ajustarCombustible(distancia: Float): Float{
-        if (realizarViaje(distancia) > combustibleActual) {
-            return 0.0F
-        }
-        else if (realizarViaje(distancia) < combustibleActual){
-            combustibleActual - distancia/kilometrosActuales
-        }
-        return combustibleActual
-    }
-    fun repostar(cantidad:Float): Float{
-        val combustibleRepostado= capacidadCombustible-combustibleActual
-        if (cantidad <= combustibleRepostado){
-            combustibleActual = capacidadCombustible
 
-        }
-        else if (cantidad >)
+    private fun ajustarKilometros(distancia: Float) {
+        kilometrosActuales += distancia
+    }
+
+    fun ajustarCombustible(distancia: Float) {
+        combustibleActual -= distancia/KILOMETROSPORLITRO
+    }
+
+    fun repostar(cantidad:Float = 0f): Float {
+        val cantidadARepostar =
+            if (cantidad <= 0)
+                capacidadCombustible - combustibleActual // Lleno
+            else
+                minOf(capacidadCombustible - combustibleActual, cantidad + combustibleActual)
+
+        combustibleActual += cantidadARepostar
+        return cantidadARepostar
     }
 }
